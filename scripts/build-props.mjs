@@ -22,6 +22,9 @@ const registry = JSON.parse(readFileSync('templates/templates.json', 'utf8'))
 
 const INTERVALS = ['1m', '5m', '15m', '1h', '4h', '1d']
 const FAPI = 'https://fapi.binance.com/fapi/v1/klines'
+// public spot mirror: same kline shape, reachable from US-hosted runners
+// where fapi answers 451; futures prices track spot, so it is a last resort
+const VISION_SPOT = 'https://data-api.binance.vision/api/v3/klines'
 const INTERVAL_MS = { '1m': 60_000, '5m': 300_000, '15m': 900_000, '1h': 3_600_000, '4h': 14_400_000, '1d': 86_400_000 }
 const CONTEXT_CANDLES = 5
 const PAGE_LIMIT = 500
@@ -113,9 +116,13 @@ async function fetchKlines(trade) {
     // the exit — the replay starts just before the signal and plays the trade
     const fetchStart = start - CONTEXT_CANDLES * INTERVAL_MS[interval]
 
-    // direct first (non-blocked IPs); the dashboard proxy covers geo-blocked runners
-    const sources = [FAPI]
+    // source chain: the dashboard proxy when configured (exact futures
+    // candles for geo-blocked runners), then direct fapi, then the public
+    // spot mirror (1000-prefixed perps have no spot pair and are skipped)
+    const sources = []
     if (process.env.KLINES_PROXY_URL) sources.push(process.env.KLINES_PROXY_URL)
+    sources.push(FAPI)
+    if (!/^1000/.test(symbol)) sources.push(VISION_SPOT)
 
     for (const source of sources) {
       try {
