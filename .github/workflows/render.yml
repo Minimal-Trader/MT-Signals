@@ -17,7 +17,7 @@ on:
       trade_json:
         description: 'Trade JSON (same shape as client_payload.trade)'
         required: true
-        default: '{"trade_id":"demo","bot_name":"MT-Sniper","symbol":"BTC/USDT","side":"LONG","entry":64000,"close":65250,"reason":"TP_HIT","closed_at":"2026-10-01T10:00:00Z","pnl_pct":1.95,"pnl_r":2.4,"leverage":10}'
+        default: '{"trade_id":"demo","bot_name":"MT-Sniper","symbol":"BTC/USDT","side":"LONG","filled_at":"2026-10-01T08:00:00Z","entry":64000,"close":65250,"reason":"TP_HIT","closed_at":"2026-10-01T10:00:00Z","pnl_pct":1.95,"pnl_r":2.4,"leverage":10,"take_profit":65250,"initial_stop":63300}'
 
 permissions: {}
 
