@@ -3,14 +3,13 @@
 Minimal Trader's public signals home and the automated renderer behind our
 win-trade marketing videos.
 
-When a strategy trade closes as a win, the MT-Dashboard backend fires a
-`repository_dispatch` event into this repo with the trade data. A GitHub
-Action validates the payload against the template registry, fetches Binance
-candles for the trade window when the chosen template needs them (public
-data mirror, `data-api.binance.vision`, so US-hosted runners work), renders
-the chosen 9:16 video (Remotion), then calls back to the dashboard for a
-presigned upload URL and pushes the MP4 to our social scheduler, which posts
-it to TikTok and Facebook.
+When a strategy trade closes as a win, the MT-Dashboard backend sends the
+trade data to this repo. The pipeline validates the payload against the
+template registry, fetches Binance candles for the trade window when the
+chosen template needs them (public data mirror, `data-api.binance.vision`,
+so US-hosted machines work), renders the chosen 9:16 video (Remotion), then
+calls back to the dashboard for a presigned upload URL and pushes the MP4 to
+our social scheduler, which posts it to TikTok and Facebook.
 
 ## Templates
 
