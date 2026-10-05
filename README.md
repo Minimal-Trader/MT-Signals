@@ -157,8 +157,8 @@ documented as it lands; nothing in this repo is required to receive them.
 
 ## License
 
-View-only, all rights reserved (see `LICENSE`). This repo is public for one
-reason: GitHub Actions renders this project's own videos for free on public
-repositories. It is not open source — you are welcome to read the code, but
-using, copying, or building on it is not permitted without written
-permission.
+The code is MIT: use it, fork it, build on it. The brand is not. The MT
+mark, the Minimal Trader name and wordmark, minimaltrader.live, and the
+brand assets in this repo are excluded from the license and remain the
+property of Minimal Trader, so neither a fork nor media rendered with this
+code can be passed off as Minimal Trader. See `LICENSE`.
