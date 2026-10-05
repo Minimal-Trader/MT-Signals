@@ -154,3 +154,11 @@ render is silent. `node scripts/render.mjs` and `bun run render` work too.
 
 Live strategy signals are published here for free. The feed wiring is
 documented as it lands; nothing in this repo is required to receive them.
+
+## License
+
+View-only, all rights reserved (see `LICENSE`). This repo is public for one
+reason: GitHub Actions renders this project's own videos for free on public
+repositories. It is not open source — you are welcome to read the code, but
+using, copying, or building on it is not permitted without written
+permission.

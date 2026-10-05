@@ -1,0 +1,16 @@
+Copyright (c) 2026 Minimal Trader. All rights reserved.
+
+This repository is public so that GitHub Actions can run this project's own
+render pipeline for free on a public repository. It is not open source, and
+public visibility is a hosting decision, not a license grant.
+
+Permission is granted to view this source code. All other rights are
+reserved: you may not reproduce, distribute, modify, create derivative works
+of, or use this code, or any portion of it, for any purpose (commercial or
+non-commercial), and you may not operate any service or render any media
+with it, without prior written permission from the copyright holder.
+
+THE CODE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM OR IN CONNECTION WITH THE CODE OR ITS USE.
