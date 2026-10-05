@@ -7,6 +7,9 @@ props.json
 public/voiceover.wav
 public/voiceover.mp3
 
+# design concepts (local only)
+concepts/
+
 # secrets
 .env
 .env.*
