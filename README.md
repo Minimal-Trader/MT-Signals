@@ -8,7 +8,7 @@ replay videos.
 - Web: [minimaltrader.live](https://minimaltrader.live)
 - Facebook: [@minimaltrader.live](https://www.facebook.com/minimaltrader.live)
 - TikTok: [@minimaltrader.live](https://www.tiktok.com/@minimaltrader.live)
-- Telegram: channel linked from [minimaltrader.live](https://minimaltrader.live)
+- Telegram: [MinimalTraderVIP](https://t.me/MinimalTraderVIP)
 
 ## License
 
