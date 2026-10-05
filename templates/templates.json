@@ -1,0 +1,10 @@
+[
+  {
+    "id": "playout",
+    "title": "Candle play-out",
+    "description": "Scrolling candle replay: real Binance candles stream in on a fixed price scale with entry, TP/SL zones and a live price tag, then the +R stamp and the brand outro.",
+    "requires": ["symbol", "side", "pnl_r", "entry", "close", "klines"],
+    "optional": ["pnl_pct", "leverage", "reason", "closed_at", "bot_name", "take_profit", "initial_stop"],
+    "needsKlines": true
+  }
+]

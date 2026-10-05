@@ -1,0 +1,16 @@
+{
+  "trade_id": "mt_fa8f496ce998-r1",
+  "bot_name": "axiom-v1.0",
+  "symbol": "KASUSDT",
+  "side": "SELL",
+  "filled_at": "2026-09-29T00:00:00",
+  "entry": 0.04621,
+  "close": 0.04207,
+  "reason": "TP_HIT",
+  "closed_at": "2026-10-01T19:31:00",
+  "pnl_pct": 3.6,
+  "pnl_r": 3,
+  "leverage": 10,
+  "take_profit": 0.04207,
+  "initial_stop": 0.04759
+}

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MT-Signals — stage concept designs, set 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,800;0,900;1,900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #111827;
+    --muted: #6b7280;
+    --orange: #ea580c;
+    --hair: rgba(17,24,39,0.14);
+    --grid: rgba(234,88,12,0.14);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #eceef1; font-family: Inter, "Segoe UI", sans-serif; padding: 48px 24px; }
+  h1 { text-align: center; color: var(--ink); font-size: 22px; font-weight: 900; }
+  .sub { text-align: center; color: var(--muted); font-size: 13px; margin: 6px 0 40px; }
+  .set { margin-bottom: 56px; }
+  .set > h2 { color: var(--ink); font-size: 15px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; margin: 0 0 20px 8px; }
+  .row { display: flex; flex-wrap: wrap; gap: 40px; justify-content: center; }
+  .concept { text-align: center; }
+  .frame { width: 1080px; height: 1920px; background: #fff; position: relative; overflow: hidden; color: var(--ink); zoom: 0.36; }
+  .caption { margin-top: 14px; color: var(--ink); font-size: 15px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; max-width: 396px; margin-left: auto; margin-right: auto; }
+  .caption small { display: block; color: var(--muted); font-weight: 500; letter-spacing: 0.04em; text-transform: none; font-size: 12px; margin-top: 4px; }
+
+  /* shared brand chrome */
+  .bg-grid { position: absolute; inset: 0;
+    background-image: linear-gradient(var(--grid) 2px, transparent 2px), linear-gradient(90deg, var(--grid) 2px, transparent 2px);
+    background-size: 108px 108px; }
+  .chrome-top { position: absolute; top: 96px; left: 90px; right: 90px; display: flex; align-items: center; justify-content: space-between; z-index: 5; }
+  .chrome-top::after, .cv-top::after { content: ""; position: absolute; top: 139px; left: 0; right: 0; border-top: 1px solid var(--hair); }
+  .logo { display: flex; align-items: baseline; gap: 10px; }
+  .logo b { font-size: 58px; font-weight: 900; letter-spacing: -0.05em; }
+  .logo i { width: 26px; height: 26px; background: var(--orange); align-self: flex-end; margin-bottom: 8px; }
+  .agent-tag { display: flex; align-items: center; gap: 12px; color: var(--orange); font-size: 21px; font-weight: 600; letter-spacing: 0.22em; }
+  .agent-tag::before { content: ""; width: 12px; height: 12px; background: var(--orange); }
+  .chrome-bottom { position: absolute; bottom: 200px; left: 0; right: 0; text-align: center; color: var(--muted); font-size: 19px; font-weight: 600; letter-spacing: 0.3em; z-index: 5; }
+  .mono { font-family: "JetBrains Mono", monospace; }
+  .micro { color: var(--orange); font-size: 21px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; display: flex; align-items: center; gap: 12px; }
+  .micro::before { content: ""; width: 12px; height: 12px; background: var(--orange); }
+  .micro.nodot::before { display: none; }
+  .micro.no-bullet::before { display: none; } .micro.no-bullet { color: var(--muted); }
+  .kicker-center { position: absolute; top: 280px; left: 0; right: 0; display: flex; justify-content: center; }
+  .pill { background: var(--orange); color: #fff; font-size: 30px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; padding: 14px 36px 15px; }
+  .statrow { position: absolute; left: 110px; right: 110px; display: flex; border-top: 1px solid var(--hair); }
+  .statrow div { flex: 1; padding: 34px 0 0; }
+  .statrow div + div { border-left: 1px solid var(--hair); padding-left: 44px; }
+  .statrow .l { color: var(--muted); font-size: 17px; font-weight: 600; letter-spacing: 0.2em; }
+  .statrow .v { font-size: 50px; font-weight: 800; margin-top: 10px; }
+  .statrow .v.o { color: var(--orange); }
+
+  /* ============ INTRO 1 — entry → exit on one line ============ */
+  .ol1 .symbol { position: absolute; top: 586px; left: 0; right: 0; text-align: center; font-size: 132px; font-weight: 900; letter-spacing: -0.04em; color: var(--orange); }
+  .ol1 .symbol small { color: var(--ink); font-size: inherit; }
+  .ol1 .pill-wrap { position: absolute; top: 770px; left: 0; right: 0; display: flex; justify-content: center; }
+  .ol1 .flow { position: absolute; top: 880px; left: 70px; right: 70px; display: flex; justify-content: center; align-items: flex-start; gap: 46px; }
+  .ol1 .col { width: 360px; text-align: center; }
+  .ol1 .col .lbl { color: var(--muted); font-size: 18px; font-weight: 600; letter-spacing: 0.22em; }
+  .ol1 .col .num { font-size: 74px; font-weight: 800; letter-spacing: -0.02em; margin-top: 16px; }
+  .ol1 .col.exit .num { color: var(--orange); }
+  .ol1 .col .when { color: var(--muted); font-size: 20px; font-weight: 500; margin-top: 14px; }
+  .ol1 .arrow { margin-top: 82px; width: 120px; position: relative; height: 4px; background: var(--ink); flex: none; }
+  .ol1 .arrow::after { content: ""; position: absolute; right: -2px; top: -11px; width: 0; height: 0;
+    border-left: 22px solid var(--ink); border-top: 13px solid transparent; border-bottom: 13px solid transparent; }
+  .ol1 .note { position: absolute; top: 1100px; left: 0; right: 0; text-align: center; color: var(--muted); font-size: 22px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
+
+  /* ============ INTRO 3 — entry over exit ============ */
+  .ol3 .lbl { position: absolute; left: 0; right: 0; text-align: center; color: var(--muted); font-size: 21px; font-weight: 600; letter-spacing: 0.3em; }
+  .ol3 .num { position: absolute; left: 0; right: 0; text-align: center; font-size: 120px; font-weight: 900; letter-spacing: -0.04em; line-height: 1; }
+  .ol3 .num.exit { color: var(--orange); }
+  .ol3 .down { position: absolute; top: 935px; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; }
+  .ol3 .down .line { width: 4px; height: 55px; background: var(--orange); }
+  .ol3 .down .tri { width: 0; height: 0; border-left: 24px solid transparent; border-right: 24px solid transparent; border-top: 26px solid var(--orange); }
+  .ol3 .meta { position: absolute; top: 1190px; left: 0; right: 0; text-align: center; color: var(--muted); font-size: 22px; font-weight: 600; letter-spacing: 0.14em; }
+  .ol3 .back { position: absolute; top: 780px; left: -20px; right: -20px; text-align: center; font-size: 320px; font-weight: 900;
+    letter-spacing: -0.04em; line-height: 1; text-transform: uppercase; white-space: nowrap; color: rgba(234,88,12,0.10); }
+  .ol3 .symbol { position: absolute; top: 516px; left: 0; right: 0; text-align: center; font-size: 132px; font-weight: 900; letter-spacing: -0.04em; color: var(--orange); }
+  .ol3 .symbol small { color: var(--ink); font-size: inherit; }
+  .ol3 .time { position: absolute; left: 0; right: 0; text-align: center; color: var(--muted); font-size: 20px; font-weight: 500; }
+  .ol3 .glow-b { position: absolute; left: 50%; top: 930px; width: 940px; height: 560px; transform: translateX(-50%);
+    background: radial-gradient(closest-side, rgba(234,88,12,.15), rgba(234,88,12,.05) 48%, transparent 72%); }
+
+  /* ============ RESULT 1 — split duo ============ */
+  .rl1 .duo { position: absolute; top: 660px; left: 90px; right: 90px; display: flex; text-align: center; }
+  .rl1 .half { flex: 1; padding: 56px 0; }
+  .rl1 .half .lbl { color: var(--muted); font-size: 19px; font-weight: 600; letter-spacing: 0.24em; }
+  .rl1 .half .big { font-size: 106px; font-weight: 900; letter-spacing: -0.04em; margin-top: 24px; }
+  .rl1 .half .big.o { color: var(--orange); }
+  .rl1 .half .big .o { color: var(--orange); }
+  .rl1 .half .cap { color: var(--muted); font-size: 20px; font-weight: 500; margin-top: 18px; }
+  .rl1 .divider { width: 8px; height: 200px; align-self: center; background: #d1d5db; }
+  .rl1 .lev, .rl3 .lev { position: absolute; top: 1120px; left: 0; right: 0; text-align: center; }
+  .rl1 .lev { top: 980px; }
+  .rl1 .lev .lbl, .rl3 .lev .lbl { color: var(--muted); font-size: 18px; font-weight: 600; letter-spacing: 0.22em; }
+  .rl1 .lev .v, .rl3 .lev .v { color: var(--ink); font-size: 54px; font-weight: 800; margin-top: 12px; }
+  .rl1 .metaline { position: absolute; top: 1160px; left: 0; right: 0; text-align: center; color: var(--muted); font-size: 22px; font-weight: 600; letter-spacing: 0.12em; }
+
+  /* ============ RESULT 3 — stacked heroes ============ */
+  .rl3 .num { position: absolute; left: 0; right: 0; text-align: center; font-size: 150px; font-weight: 900; letter-spacing: -0.04em; line-height: 1; }
+  .rl3 .num .o { color: var(--orange); }
+  .rl3 .lbl { position: absolute; left: 0; right: 0; text-align: center; color: var(--muted); font-size: 20px; font-weight: 600; letter-spacing: 0.22em; }
+  .rl3 .rule { position: absolute; left: 50%; transform: translateX(-50%); width: 640px; height: 8px; background: #d1d5db; }
+  .rl3 .meta { position: absolute; left: 0; right: 0; text-align: center; color: var(--muted); font-size: 22px; font-weight: 600; letter-spacing: 0.14em; }
+
+  /* corner-grid art (b1) lives above; kept for Intro 1 */
+
+  /* ============ GENERATED WAVE CANVAS — one random path, three render styles ============ */
+  .cart-svg { position: absolute; left: 0; bottom: 0; width: 1080px; height: 260px; display: block; }
+
+
+  /* ============ CURRENT VIDEO cards — faithful re-renders of templates/styles.tsx ============ */
+  .cv-grid { position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(234,88,12,.09) 1px, transparent 1px), linear-gradient(90deg, rgba(234,88,12,.09) 1px, transparent 1px);
+    background-size: 108px 108px; }
+  .cv-glow { position: absolute; left: 50%; top: 46%; width: 1080px; height: 1080px; transform: translate(-50%,-50%);
+    background: radial-gradient(closest-side, rgba(234,88,12,.13), rgba(234,88,12,.04) 46%, transparent 72%); }
+  .cv-stars { position: absolute; inset: 0; }
+  .cv-stars span { position: absolute; border-radius: 50%; }
+  .cv-shoot { position: absolute; height: 1px; width: 170px; transform: rotate(-32deg); }
+  .cv-shoot.a { left: 130px; top: 420px; background: linear-gradient(90deg, transparent, rgba(234,88,12,.55)); }
+  .cv-shoot.b { right: 140px; top: 700px; background: linear-gradient(90deg, transparent, rgba(17,24,39,.45)); }
+  .cv-curve { position: absolute; left: 0; bottom: 0; width: 1080px; height: 230px; }
+  .cv-top { position: absolute; top: 96px; left: 90px; right: 90px; display: flex; align-items: center; justify-content: space-between; z-index: 5; }
+  .cv-top svg { width: 110px; height: auto; display: block; }
+  .cv-foot { position: absolute; bottom: 200px; left: 0; right: 0; text-align: center; color: var(--muted); font-size: 19px; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; z-index: 5; }
+  .cv-micro { display: flex; align-items: center; gap: 14px; color: var(--orange); font-size: 22px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; }
+  .cv-micro::before { content: ""; width: 12px; height: 12px; background: var(--orange); }
+  .cv-micro.nb::before { display: none; }
+  .cv-micro.mut { color: var(--muted); }
+  .cv-center { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 4; }
+  .cv-lbl { color: var(--muted); font-size: 17px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; }
+
+  /* current intro — classic */
+  .cl { padding-bottom: 300px; }
+  .cl .symbol { margin-top: 60px; font-size: 140px; font-weight: 900; letter-spacing: -0.03em; text-transform: uppercase; line-height: 1; color: var(--orange); }
+  .cl .symbol small { color: var(--ink); font-size: inherit; }
+  .cl .pillwrap { margin-top: 34px; }
+  .cl .flow { margin-top: 60px; display: flex; gap: 150px; }
+  .cl .col { text-align: center; }
+  .cl .col .v { font-size: 56px; font-weight: 800; margin-top: 12px; }
+  .cl .col .v.o { color: var(--orange); }
+  .cl .col .t { color: var(--muted); font-size: 22px; font-weight: 600; margin-top: 10px; }
+
+  /* current intro — big side */
+  .bs { padding-bottom: 0px; }
+  .bs .back { position: absolute; top: 400px; left: -20px; right: -20px; font-size: 330px; font-weight: 900; letter-spacing: -0.04em;
+    color: rgba(234,88,12,0.10); text-align: center; line-height: 1; text-transform: uppercase; white-space: nowrap; }
+  .bs .symbol { font-size: 150px; font-weight: 900; letter-spacing: -0.03em; text-transform: uppercase; line-height: 1; color: var(--orange); }
+  .bs .symbol small { color: var(--ink); font-size: inherit; }
+  .bs .cv-micro { margin-bottom: 60px; }
+  .bs .nums { margin-top: 44px; display: flex; align-items: center; justify-content: center; gap: 30px; font-size: 68px; font-weight: 900; letter-spacing: -0.02em; }
+  .bs .nums .o { color: var(--orange); }
+  .bs .nums .arr { width: 96px; height: 4px; background: var(--ink); position: relative; }
+  .bs .nums .arr::after { content: ""; position: absolute; right: -2px; top: -11px; width: 0; height: 0;
+    border-left: 22px solid var(--ink); border-top: 13px solid transparent; border-bottom: 13px solid transparent; }
+  .bs .times { margin-top: 46px; display: flex; gap: 120px; color: var(--muted); font-size: 21px; font-weight: 600; letter-spacing: 0.14em; }
+
+  /* current result — classic */
+  .cr { padding-bottom: 140px; }
+  .cr .big { margin-top: 60px; font-size: 200px; font-weight: 900; letter-spacing: -0.04em; line-height: 1; display: flex; transform: translateX(-0.025em); }
+  .cr .big .o { color: var(--orange); }
+  .cr .cap { margin-top: 22px; color: var(--muted); font-size: 24px; font-weight: 500; }
+  .cr .pair { margin-top: 52px; display: flex; gap: 110px; }
+  .cr .pair .col { text-align: center; }
+  .cr .pair .v { font-size: 52px; font-weight: 800; }
+  .cr .pair .l { margin-top: 10px; }
+
+  /* current result — hero R */
+  .hr { padding-bottom: 140px; }
+  .hr .big { margin-top: 60px; font-size: 200px; font-weight: 900; letter-spacing: -0.05em; line-height: 1; display: flex; transform: translateX(-0.03em); }
+  .hr .big .o { color: var(--orange); }
+  .hr .rule { margin-top: 26px; height: 8px; width: 640px; background: #d1d5db; }
+  .hr .pair { margin-top: 44px; display: flex; gap: 110px; }
+  .hr .pair .col { text-align: center; }
+  .hr .pair .v { font-size: 54px; font-weight: 800; }
+  .hr .pair .v.o { color: var(--orange); }
+  .hr .pair .l { margin-top: 8px; }
+
+</style>
+</head>
+<body>
+<h1>Stage concept designs — set 3</h1>
+<p class="sub">Same trade (BTC/USDT long, +2.94R, +3.60% on account, 10x). Fixed brand palette, light mode. Simple layouts, same language as the current stages.</p>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="strokeFade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ea580c" stop-opacity="0"/>
+      <stop offset=".14" stop-color="#ea580c" stop-opacity=".55"/>
+      <stop offset=".85" stop-color="#ea580c" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#ea580c" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="areaFade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ea580c" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#ea580c" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<div class="set">
+  <h2>Intro stages</h2>
+  <div class="row">
+
+    <div class="concept">
+      <div class="frame ol1">
+        <div class="art b1"></div>
+        <svg class="cart-svg" viewBox="0 0 1080 260" data-wave="line" data-seed="86"></svg>
+        <div class="chrome-top"><svg viewBox="0 0 976 432.54" style="width:110px;height:auto;display:block;"><path fill="#111827" d="M0,432.54V0h158.6l115.34,288.36L389.29,0h158.6v432.54h-115.34V144.18l-115.34,288.36h-86.51L115.34,144.18v288.36H0Z"/><path fill="#111827" d="M557.88,0h360.45v115.34h-122.55v317.2h-115.34V115.34h-122.55V0Z"/><rect fill="#ea580c" x="860.66" y="317.2" width="115.34" height="115.34"/></svg><div class="agent-tag">MT-SNIPER · AGENT</div></div>
+        <div class="kicker-center" style="top:500px;"><div class="micro nodot">TRADE REPLAY · SEP 29, 2026</div></div>
+        <div class="symbol">BTC<small>/USDT</small></div>
+        <div class="pill-wrap"><div class="pill">LONG · 10X</div></div>
+        <div class="flow">
+          <div class="col"><div class="lbl">ENTRY</div><div class="num">82,865.7</div><div class="when mono">Sep 29, 3:15 AM</div></div>
+          <div class="arrow"></div>
+          <div class="col exit"><div class="lbl">EXIT</div><div class="num">84,416.5</div><div class="when mono">Sep 29, 11:52 AM</div></div>
+        </div>
+        <div class="note">hold 8h 37m to hit take profit</div>
+        <div class="chrome-bottom">MINIMALTRADER.LIVE</div>
+      </div>
+      <div class="caption">Intro 1 — One line<small>Symbol and pill up top, entry and exit side by side with an arrow between, corner-grid background</small></div>
+    </div>
+
+    <div class="concept">
+      <div class="frame ol3">
+        <div class="glow-b"></div>
+        <svg class="cart-svg" viewBox="0 0 1080 260" data-wave="line" data-seed="3"></svg>
+        <div class="back">LONG</div>
+        <div class="chrome-top"><svg viewBox="0 0 976 432.54" style="width:110px;height:auto;display:block;"><path fill="#111827" d="M0,432.54V0h158.6l115.34,288.36L389.29,0h158.6v432.54h-115.34V144.18l-115.34,288.36h-86.51L115.34,144.18v288.36H0Z"/><path fill="#111827" d="M557.88,0h360.45v115.34h-122.55v317.2h-115.34V115.34h-122.55V0Z"/><rect fill="#ea580c" x="860.66" y="317.2" width="115.34" height="115.34"/></svg><div class="agent-tag">MT-SNIPER · AGENT</div></div>
+        <div class="kicker-center" style="top:430px;"><div class="micro nodot">TRADE REPLAY · SEP 29, 2026</div></div>
+        <div class="symbol">BTC<small>/USDT</small></div>
+        <div class="lbl" style="top:700px;">ENTRY</div>
+        <div class="num" style="top:744px;">82,865.7</div>
+        <div class="time mono" style="top:880px;">Sep 29, 3:15 AM</div>
+        <div class="down"><div class="line"></div><div class="tri"></div></div>
+        <div class="lbl" style="top:1075px;">EXIT</div>
+        <div class="num exit" style="top:1119px;">84,416.5</div>
+        <div class="time mono" style="top:1250px;">Sep 29, 11:52 AM</div>
+        <div class="meta mono" style="top:1345px;">LONG · 10X · HOLD 8H 37M</div>
+        <div class="chrome-bottom">MINIMALTRADER.LIVE</div>
+      </div>
+      <div class="caption">Intro 3 — Entry over exit<small>Entry stacked over exit with the side word as a mid-frame watermark behind the arrow, one glow under the exit number</small></div>
+    </div>
+
+    <div class="concept">
+      <div class="frame">
+        <div class="cv-grid"></div>
+        <div class="cv-glow"></div>
+        <div class="cv-stars"></div>
+        <div class="cv-shoot a"></div>
+        <div class="cv-shoot b"></div>
+        <svg class="cart-svg" viewBox="0 0 1080 260" data-wave="line" data-seed="17"></svg>
+        <div class="cv-top">
+          <svg viewBox="0 0 976 432.54" style="width:110px;height:auto;display:block;"><path fill="#111827" d="M0,432.54V0h158.6l115.34,288.36L389.29,0h158.6v432.54h-115.34V144.18l-115.34,288.36h-86.51L115.34,144.18v288.36H0Z"/><path fill="#111827" d="M557.88,0h360.45v115.34h-122.55v317.2h-115.34V115.34h-122.55V0Z"/><rect fill="#ea580c" x="860.66" y="317.2" width="115.34" height="115.34"/></svg>
+          <div class="cv-micro">MT-SNIPER · AGENT</div>
+        </div>
+        <div class="cv-center cl">
+          <div class="cv-micro nb">TRADE REPLAY · SEP 29, 2026</div>
+          <div class="symbol">BTC<small>/USDT</small></div>
+          <div class="flow">
+            <div class="col"><div class="cv-lbl">Entry</div><div class="v">82,865.7</div><div class="t">Sep 29, 3:15 AM</div></div>
+            <div class="col"><div class="cv-lbl">Exit</div><div class="v o">84,416.5</div><div class="t">Sep 29, 11:52 AM</div></div>
+          </div>
+          <div class="pillwrap" style="margin-top:48px;"><div class="pill">LONG · 10X</div></div>
+          <div style="margin-top:100px; color:var(--muted); font-size:22px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase;">HOLD 8H 37M TO HIT TAKE PROFIT</div>
+        </div>
+        <div class="cv-foot">minimaltrader.live</div>
+      </div>
+      <div class="caption">Current video — Classic<small>What renders today: centered symbol, orange side pill, entry and exit columns</small></div>
+    </div>
+
+    <div class="concept">
+      <div class="frame">
+        <div class="cv-grid"></div>
+        <div class="cv-stars"></div>
+        <div class="cv-shoot a"></div>
+        <div class="cv-shoot b"></div>
+        <svg class="cart-svg" viewBox="0 0 1080 260" data-wave="line" data-seed="41"></svg>
+        <div class="cv-top">
+          <svg viewBox="0 0 976 432.54" style="width:110px;height:auto;display:block;"><path fill="#111827" d="M0,432.54V0h158.6l115.34,288.36L389.29,0h158.6v432.54h-115.34V144.18l-115.34,288.36h-86.51L115.34,144.18v288.36H0Z"/><path fill="#111827" d="M557.88,0h360.45v115.34h-122.55v317.2h-115.34V115.34h-122.55V0Z"/><rect fill="#ea580c" x="860.66" y="317.2" width="115.34" height="115.34"/></svg>
+          <div class="cv-micro">MT-SNIPER · AGENT</div>
+        </div>
+        <div class="cv-center bs">
+          <div class="back">LONG</div>
+          <div class="cv-micro nb">TRADE REPLAY · SEP 29, 2026</div>
+          <div class="symbol">BTC<small>/USDT</small></div>
+          <div class="nums"><span>82,865.7</span><span class="arr"></span><span class="o">84,416.5</span></div>
+          <div class="times"><span>IN Sep 29, 3:15 AM</span><span>OUT Sep 29, 11:52 AM</span></div>
+          <div class="meta mono" style="margin-top:100px; color:var(--muted); font-size:22px; font-weight:600; letter-spacing:0.14em;">LONG · 10X · HOLD 8H 37M</div>
+        </div>
+        <div class="cv-foot">minimaltrader.live</div>
+      </div>
+      <div class="caption">Big side — clean<small>Giant LONG watermark behind the symbol, plain entry and exit numbers with an arrow between, in and out times under</small></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="set">
+  <h2>Profit card stages</h2>
+  <div class="row">
+
+    <div class="concept">
+      <div class="frame rl1">
+        <div class="art b1"></div>
+        <svg class="cart-svg" viewBox="0 0 1080 260" data-wave="line" data-seed="55"></svg>
+        <div class="chrome-top"><svg viewBox="0 0 976 432.54" style="width:110px;height:auto;display:block;"><path fill="#111827" d="M0,432.54V0h158.6l115.34,288.36L389.29,0h158.6v432.54h-115.34V144.18l-115.34,288.36h-86.51L115.34,144.18v288.36H0Z"/><path fill="#111827" d="M557.88,0h360.45v115.34h-122.55v317.2h-115.34V115.34h-122.55V0Z"/><rect fill="#ea580c" x="860.66" y="317.2" width="115.34" height="115.34"/></svg><div class="agent-tag">MT-SNIPER · AGENT</div></div>
+        <div class="kicker-center" style="top:574px;"><div class="micro nodot">RESULT · TAKE PROFIT</div></div>
+        <div class="duo">
+          <div class="half"><div class="lbl">ON ACCOUNT</div><div class="big"><span class="o">+</span>3.60<span class="o">%</span></div></div>
+          <div class="divider"></div>
+          <div class="half"><div class="lbl">RISK - REWARD</div><div class="big"><span class="o">+</span>2.94<span class="o">R</span></div></div>
+        </div>
+        <div class="metaline mono">HOLD 8H 37M TO HIT TAKE PROFIT</div>
+        <div class="lev"><div class="lbl">LEVERAGE</div><div class="v">10X</div></div>
+        <div class="chrome-bottom">MINIMALTRADER.LIVE</div>
+      </div>
+      <div class="caption">Result 1 — Split duo<small>Two halves split by an orange rule: account percent and R multiple, leverage under</small></div>
+    </div>
+
+    <div class="concept">
+      <div class="frame rl3">
+        <div class="art b1"></div>
+        <svg class="cart-svg" viewBox="0 0 1080 260" data-wave="line" data-seed="71"></svg>
+        <div class="chrome-top"><svg viewBox="0 0 976 432.54" style="width:110px;height:auto;display:block;"><path fill="#111827" d="M0,432.54V0h158.6l115.34,288.36L389.29,0h158.6v432.54h-115.34V144.18l-115.34,288.36h-86.51L115.34,144.18v288.36H0Z"/><path fill="#111827" d="M557.88,0h360.45v115.34h-122.55v317.2h-115.34V115.34h-122.55V0Z"/><rect fill="#ea580c" x="860.66" y="317.2" width="115.34" height="115.34"/></svg><div class="agent-tag">MT-SNIPER · AGENT</div></div>
+        <div class="kicker-center" style="top:470px;"><div class="micro nodot">RESULT · TAKE PROFIT</div></div>
+        <div class="num" style="top:555px;"><span class="o">+</span>2.94<span class="o">R</span></div>
+        <div class="lbl" style="top:735px;">RISK - REWARD</div>
+        <div class="rule" style="top:795px;"></div>
+        <div class="num" style="top:860px;"><span class="o">+</span>3.60<span class="o">%</span></div>
+        <div class="lbl" style="top:1040px;">ON THE ACCOUNT</div>
+        <div class="lev"><div class="v">10X</div><div class="lbl" style="margin-top:10px;">LEVERAGE</div></div>
+        <div class="meta mono" style="top:1330px;">HOLD 8H 37M TO HIT TAKE PROFIT</div>
+        <div class="chrome-bottom">MINIMALTRADER.LIVE</div>
+      </div>
+      <div class="caption">Result 3 — Stacked heroes<small>Risk-reward stacked over account percent, both as giant numbers with orange signs</small></div>
+    </div>
+
+    <div class="concept">
+      <div class="frame">
+        <div class="cv-grid"></div>
+        <div class="cv-glow"></div>
+        <div class="cv-stars"></div>
+        <div class="cv-shoot a"></div>
+        <div class="cv-shoot b"></div>
+        <svg class="cart-svg" viewBox="0 0 1080 260" data-wave="line" data-seed="91"></svg>
+        <div class="cv-top">
+          <svg viewBox="0 0 976 432.54" style="width:110px;height:auto;display:block;"><path fill="#111827" d="M0,432.54V0h158.6l115.34,288.36L389.29,0h158.6v432.54h-115.34V144.18l-115.34,288.36h-86.51L115.34,144.18v288.36H0Z"/><path fill="#111827" d="M557.88,0h360.45v115.34h-122.55v317.2h-115.34V115.34h-122.55V0Z"/><rect fill="#ea580c" x="860.66" y="317.2" width="115.34" height="115.34"/></svg>
+          <div class="cv-micro">MT-SNIPER · AGENT</div>
+        </div>
+        <div class="cv-center cr">
+          <div class="cv-micro nb">RESULT · TAKE PROFIT</div>
+          <div class="big"><span class="o">+</span>3.60<span class="o">%</span></div>
+          <div class="cap">ON THE ACCOUNT</div>
+          <div class="pair">
+            <div class="col"><div class="v">+2.94<span class="o">R</span></div><div class="cv-lbl l">Risk - Reward</div></div>
+            <div class="col"><div class="v">10x</div><div class="cv-lbl l">Leverage</div></div>
+          </div>
+        </div>
+        <div class="cv-foot">minimaltrader.live</div>
+      </div>
+      <div class="caption">Current video — Classic<small>What renders today: giant account percent with orange signs, risk-reward and leverage underneath</small></div>
+    </div>
+
+    <div class="concept">
+      <div class="frame">
+        <div class="cv-grid"></div>
+        <div class="cv-glow"></div>
+        <div class="cv-stars"></div>
+        <div class="cv-shoot a"></div>
+        <div class="cv-shoot b"></div>
+        <svg class="cart-svg" viewBox="0 0 1080 260" data-wave="line" data-seed="12"></svg>
+        <div class="cv-top">
+          <svg viewBox="0 0 976 432.54" style="width:110px;height:auto;display:block;"><path fill="#111827" d="M0,432.54V0h158.6l115.34,288.36L389.29,0h158.6v432.54h-115.34V144.18l-115.34,288.36h-86.51L115.34,144.18v288.36H0Z"/><path fill="#111827" d="M557.88,0h360.45v115.34h-122.55v317.2h-115.34V115.34h-122.55V0Z"/><rect fill="#ea580c" x="860.66" y="317.2" width="115.34" height="115.34"/></svg>
+          <div class="cv-micro">MT-SNIPER · AGENT</div>
+        </div>
+        <div class="cv-center hr">
+          <div class="cv-micro nb">RESULT · TAKE PROFIT</div>
+          <div class="big"><span class="o">+</span>2.94<span class="o">R</span></div>
+          <div class="rule"></div>
+          <div class="pair">
+            <div class="col"><div class="v o">+3.60%</div><div class="cv-lbl l">On account</div></div>
+            <div class="col"><div class="v">10x</div><div class="cv-lbl l">Leverage</div></div>
+          </div>
+        </div>
+        <div class="cv-foot">minimaltrader.live</div>
+      </div>
+      <div class="caption">Current video — Hero R<small>Giant R multiple over an orange rule, account percent and leverage below</small></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // star specks matching BrandCanvas's mulberry32(11) field, reseeded per card
+  (function () {
+    const fill = (el) => {
+      let a = 11
+      const rnd = () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296 }
+      for (let i = 0; i < 70; i++) {
+        const orange = rnd() < 0.14
+        const s = document.createElement('span')
+        s.style.cssText = `width:${1 + rnd() * 1.5}px;height:${1 + rnd() * 1.5}px;left:${rnd() * 1080}px;top:${rnd() * 1920}px;background:${orange ? '#ea580c' : '#111827'};opacity:${orange ? 0.3 + rnd() * 0.32 : 0.08 + rnd() * 0.24}`
+        el.appendChild(s)
+      }
+    }
+    document.querySelectorAll('.cv-stars').forEach(fill)
+  })();
+
+  // generated wave canvas: one random walk in a fixed band per seed (= trade
+  // id in the real render), middle free, end always above the start, drawn
+  // as line / step / bars
+  (function () {
+    const ns = 'http://www.w3.org/2000/svg'
+    const mulberry = (a) => () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296 }
+    const el = (name, attrs) => { const n = document.createElementNS(ns, name); for (const k in attrs) n.setAttribute(k, attrs[k]); return n }
+
+    const genPoints = (seed) => {
+      const rnd = mulberry(((seed * 2654435761) >>> 0) || 1)
+      const n = 11 + Math.floor(rnd() * 7)
+      const ys = []
+      let y = 168 + rnd() * 26
+      for (let i = 0; i < n; i++) {
+        ys.push(y)
+        y += rnd() * 58 - 27
+        y = Math.min(212, Math.max(38, y))
+      }
+      ys[n - 1] = Math.max(30, ys[0] - 28 - rnd() * 46)
+      return ys.map((v, i) => [-10 + (1100 / (n - 1)) * i, v])
+    }
+
+    const smooth = (p) => {
+      let d = `M ${p[0][0]},${p[0][1]}`
+      for (let i = 0; i < p.length - 1; i++) {
+        const p0 = p[i - 1] || p[i], p1 = p[i], p2 = p[i + 1], p3 = p[i + 2] || p2
+        d += ` C ${p1[0] + (p2[0] - p0[0]) / 6},${p1[1] + (p2[1] - p0[1]) / 6} ${p2[0] - (p3[0] - p1[0]) / 6},${p2[1] - (p3[1] - p1[1]) / 6} ${p2[0]},${p2[1]}`
+      }
+      return d
+    }
+
+    // volume-style series: dense bars, wandering base with chatter and
+    // spikes, gently lifted toward the end so the far side reads higher
+    const genVolume = (seed) => {
+      const rnd = mulberry(((seed * 40503) >>> 0) || 1)
+      const hs = []
+      let base = 26 + rnd() * 14
+      for (let i = 0; i < 36; i++) {
+        base = Math.min(64, Math.max(14, base + rnd() * 6 - 2.6))
+        let h = base * (0.7 + rnd() * 1.3)
+        if (rnd() < 0.06) h = base * 2.6 + rnd() * 30
+        hs.push(Math.min(245, Math.max(5, h * (0.82 + (i / 36) * 0.5))))
+      }
+      return hs
+    }
+
+    const renders = {
+      line: (svg, pts) => {
+        const d = smooth(pts)
+        svg.appendChild(el('path', { d: `${d} L 1090,260 L -10,260 Z`, fill: 'url(#areaFade)' }))
+        svg.appendChild(el('path', { d, fill: 'none', stroke: 'url(#strokeFade)', 'stroke-width': 4 }))
+      },
+      step: (svg, pts) => {
+        let d = `M ${pts[0][0]},${pts[0][1]}`
+        for (let i = 1; i < pts.length; i++) d += ` L ${pts[i][0]},${pts[i - 1][1]} L ${pts[i][0]},${pts[i][1]}`
+        svg.appendChild(el('path', { d: `${d} L 1090,260 L -10,260 Z`, fill: 'url(#areaFade)' }))
+        svg.appendChild(el('path', { d, fill: 'none', stroke: '#ea580c', 'stroke-width': 4 }))
+      },
+      bars: (svg, pts, seed) => {
+        const hs = genVolume(seed)
+        const slot = 1080 / hs.length
+        for (let i = 0; i < hs.length; i++) {
+          const up = i === 0 || hs[i] >= hs[i - 1]
+          svg.appendChild(el('rect', {
+            x: i * slot, width: slot - 3, y: 260 - hs[i], height: hs[i],
+            fill: up ? '#ea580c' : '#111827', opacity: up ? 0.45 : 0.08,
+          }))
+        }
+      },
+    }
+
+    document.querySelectorAll('svg[data-wave]').forEach(svg => {
+      const seed = +svg.getAttribute("data-seed"); renders[svg.getAttribute("data-wave")](svg, genPoints(seed), seed)
+    })
+  })()
+</script>
+</body>
+</html>

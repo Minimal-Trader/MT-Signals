@@ -1,0 +1,87 @@
+name: Render win video
+
+# Fired by the MT-Dashboard worker via repository_dispatch when a bot trade
+# closes as a win. Renders the 9:16 marketing video, then calls back to the
+# dashboard for a presigned upload URL (minted after the render, never in the
+# dispatch payload) and uploads the MP4 to Zernio's storage.
+#
+# This workflow only triggers on repository_dispatch and manual
+# workflow_dispatch, both of which require write access to this repo.
+# Fork PRs never run it and never see secrets.
+
+on:
+  repository_dispatch:
+    types: [win-video]
+  workflow_dispatch:
+    inputs:
+      trade_json:
+        description: 'Trade JSON (same shape as client_payload.trade)'
+        required: true
+        default: '{"trade_id":"demo","bot_name":"MT-Sniper","symbol":"BTC/USDT","side":"LONG","entry":64000,"close":65250,"reason":"TP_HIT","closed_at":"2026-10-01T10:00:00Z","pnl_pct":1.95,"pnl_r":2.4,"leverage":10}'
+
+permissions: {}
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      JOB_ID: ${{ github.event.client_payload.job_id || 'manual' }}
+      TRADE_JSON: ${{ github.event_name == 'repository_dispatch' && toJSON(github.event.client_payload.trade) || github.event.inputs.trade_json }}
+      # bot VPS zone; build-props derives the UTC offset from it
+      TRADE_TZ: 'Asia/Colombo'
+      # free-tier Gemini keys: LLM voiceover copy + TTS; tried in order
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      GEMINI_API_KEY_2: ${{ secrets.GEMINI_API_KEY_2 }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build render props (validates template against the registry)
+        run: node scripts/build-props.mjs
+
+      # last-resort TTS provider when every Gemini model is unavailable; the
+      # voiceover script itself skips gracefully if neither provider works
+      - name: Install edge-tts fallback
+        run: pip install edge-tts
+        continue-on-error: true
+
+      - name: Generate voiceover
+        run: node scripts/voiceover.mjs
+
+      - name: Ensure browser
+        run: npx remotion browser ensure
+
+      - name: Render video
+        run: npx remotion render src/index.ts "$(node -p 'JSON.parse(require("fs").readFileSync("props.json","utf8")).template')" out/video.mp4 --props=props.json
+
+      # dashboard schedules the Zernio post and returns the presigned upload
+      # URL; the MP4 must land in Zernio's storage before the publish time
+      - name: Schedule post and upload to Zernio
+        if: env.JOB_ID != 'manual'
+        env:
+          CALLBACK_URL: ${{ secrets.VIDEO_CALLBACK_URL }}
+          CALLBACK_SECRET: ${{ secrets.VIDEO_CALLBACK_SECRET }}
+        run: |
+          RESPONSE=$(curl -sfS -X POST "$CALLBACK_URL" \
+            -H "Authorization: Bearer $CALLBACK_SECRET" \
+            -H 'Content-Type: application/json' \
+            -d "{\"job_id\":\"$JOB_ID\"}")
+          UPLOAD_URL=$(echo "$RESPONSE" | jq -er .upload_url)
+          curl -sfS -X PUT --upload-file out/video.mp4 \
+            -H 'Content-Type: video/mp4' "$UPLOAD_URL"
+          echo "uploaded to Zernio"
+
+      - name: Save video artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-video-${{ env.JOB_ID }}
+          path: out/video.mp4
+          retention-days: 3

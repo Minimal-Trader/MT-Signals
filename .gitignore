@@ -1,0 +1,17 @@
+# dependencies
+node_modules/
+
+# render + pipeline artifacts
+out/
+props.json
+public/voiceover.wav
+public/voiceover.mp3
+
+# secrets
+.env
+.env.*
+
+# os / editor junk
+.DS_Store
+Thumbs.db
+*.log
