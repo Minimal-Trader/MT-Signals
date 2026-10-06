@@ -1,9 +1,10 @@
 name: Render win video
 
 # Fired by the MT-Dashboard worker via repository_dispatch when a bot trade
-# closes as a win. Renders the 9:16 marketing video, then calls back to the
-# dashboard for a presigned upload URL (minted after the render, never in the
-# dispatch payload) and uploads the MP4 to Zernio's storage.
+# closes as a win. Renders the 9:16 marketing video, then gets a presigned
+# upload pair from the dashboard (minted after the render, never in the
+# dispatch payload), uploads the MP4 to Zernio's storage, and has the
+# dashboard create the Zernio post once the upload is confirmed.
 #
 # This workflow only triggers on repository_dispatch and manual
 # workflow_dispatch, both of which require write access to this repo.
@@ -64,25 +65,32 @@ jobs:
         run: npx remotion render src/index.ts "$(node -p 'JSON.parse(require("fs").readFileSync("props.json","utf8")).template')" out/video.mp4 --props=props.json
 
       # the runner authenticates to the dashboard as a node (same x-node-id /
-      # x-node-api-key credentials the trading bots use); the dashboard
-      # schedules the Zernio post and returns the presigned upload URL, and
-      # the MP4 must land before the scheduled publish time
-      - name: Schedule post and upload to Zernio
+      # x-node-api-key credentials the trading bots use): POST /upload-url
+      # returns a presigned Zernio upload pair, the MP4 is PUT to it, then
+      # POST /complete with the public_url creates the Zernio post
+      - name: Upload to Zernio and create the post
         if: env.JOB_ID != 'manual'
         env:
-          CALLBACK_URL: ${{ secrets.VIDEO_CALLBACK_URL }}
+          VIDEO_CALLBACK_BASE: ${{ secrets.VIDEO_CALLBACK_BASE }}
           NODE_ID: mt-signals-renderer
           NODE_API_KEY: ${{ secrets.NODE_API_KEY }}
         run: |
-          RESPONSE=$(curl -sfS -X POST "$CALLBACK_URL" \
+          RESPONSE=$(curl -sfS -X POST "$VIDEO_CALLBACK_BASE/upload-url" \
             -H "x-node-id: $NODE_ID" \
             -H "x-node-api-key: $NODE_API_KEY" \
             -H 'Content-Type: application/json' \
             -d "{\"job_id\":\"$JOB_ID\"}")
           UPLOAD_URL=$(echo "$RESPONSE" | jq -er .upload_url)
+          PUBLIC_URL=$(echo "$RESPONSE" | jq -er .public_url)
           curl -sfS -X PUT --upload-file out/video.mp4 \
             -H 'Content-Type: video/mp4' "$UPLOAD_URL"
           echo "uploaded to Zernio"
+          curl -sfS -X POST "$VIDEO_CALLBACK_BASE/complete" \
+            -H "x-node-id: $NODE_ID" \
+            -H "x-node-api-key: $NODE_API_KEY" \
+            -H 'Content-Type: application/json' \
+            -d "{\"job_id\":\"$JOB_ID\",\"public_url\":\"$PUBLIC_URL\"}"
+          echo "post created"
 
       - name: Save video artifact
         if: always()

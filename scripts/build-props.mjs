@@ -41,6 +41,10 @@ try {
 }
 
 if (process.env.TEMPLATE) trade.template = process.env.TEMPLATE
+// the dashboard dispatch omits take_profit: a close in profit IS the TP
+if (trade.take_profit == null && trade.close != null && (trade.pnl_pct ?? 0) > 0) {
+  trade.take_profit = trade.close
+}
 if (!trade.klines) trade.klines = await fetchKlines(trade)
 
 // offset the renderer needs to convert the naive filled_at back to UTC
