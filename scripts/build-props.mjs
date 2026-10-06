@@ -4,11 +4,11 @@
 // props.json for `remotion render`.
 //
 // Candle data: MT is a futures-only tool, so klines come from the Binance
-// futures API (fapi.binance.com). api.binance.com / fapi.binance.com
-// geo-block US-hosted GitHub runners, so set KLINES_PROXY_URL to the
-// dashboard's public proxy (GET /api/market/klines) which reaches fapi from
-// Cloudflare egress. Direct fapi is tried first (works from non-blocked IPs).
-// Override the interval with INTERVAL (e.g. INTERVAL=15m) to force one.
+// futures API (fapi.binance.com). US-hosted GitHub runners are geo-blocked
+// (451), so KLINES_PROXY_URL points at the relay on the bot VPS
+// (../binance-relay, see its README); direct fapi is tried when unset, and
+// the public spot mirror is the last resort. Override the interval with
+// INTERVAL (e.g. INTERVAL=15m) to force one.
 //
 // Template selection:
 //   trade.template set  -> that template; if its inputs are missing (e.g. the
