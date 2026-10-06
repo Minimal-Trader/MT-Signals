@@ -63,16 +63,20 @@ jobs:
       - name: Render video
         run: npx remotion render src/index.ts "$(node -p 'JSON.parse(require("fs").readFileSync("props.json","utf8")).template')" out/video.mp4 --props=props.json
 
-      # dashboard schedules the Zernio post and returns the presigned upload
-      # URL; the MP4 must land in Zernio's storage before the publish time
+      # the runner authenticates to the dashboard as a node (same x-node-id /
+      # x-node-api-key credentials the trading bots use); the dashboard
+      # schedules the Zernio post and returns the presigned upload URL, and
+      # the MP4 must land before the scheduled publish time
       - name: Schedule post and upload to Zernio
         if: env.JOB_ID != 'manual'
         env:
           CALLBACK_URL: ${{ secrets.VIDEO_CALLBACK_URL }}
-          CALLBACK_SECRET: ${{ secrets.VIDEO_CALLBACK_SECRET }}
+          NODE_ID: mt-signals-renderer
+          NODE_API_KEY: ${{ secrets.NODE_API_KEY }}
         run: |
           RESPONSE=$(curl -sfS -X POST "$CALLBACK_URL" \
-            -H "Authorization: Bearer $CALLBACK_SECRET" \
+            -H "x-node-id: $NODE_ID" \
+            -H "x-node-api-key: $NODE_API_KEY" \
             -H 'Content-Type: application/json' \
             -d "{\"job_id\":\"$JOB_ID\"}")
           UPLOAD_URL=$(echo "$RESPONSE" | jq -er .upload_url)
