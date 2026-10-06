@@ -42,11 +42,12 @@ const LLM_MODELS = (process.env.LLM_MODELS ||
 
 // voiceover word budget scales with the candle count the chart replays:
 // a longer window can carry a longer narration (TTS paces ~2.7 words/sec),
-// short trades stay at 30-55 words so the chart never freezes long, and the
-// caps keep the whole video short-form
+// short trades stay at 30-55 words so the chart never freezes long.
+// Hard cap 120 words ~= 44s of voice -> ~51s video, inside the 60s
+// Facebook Reels limit.
 function wordBudget(trade) {
   const step = Math.floor((trade.klines?.length ?? 0) / 100)
-  return [Math.min(30 + step * 5, 45), Math.min(55 + step * 10, 75)]
+  return [Math.min(30 + step * 5, 50), Math.min(55 + step * 15, 120)]
 }
 const BANNED = /guarantee|guaranteed|risk[- ]free|moon|get rich|cannot lose|sure thing|\bbot\b/i
 
