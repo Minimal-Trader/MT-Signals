@@ -34,8 +34,10 @@ jobs:
       # free-tier Gemini keys: LLM voiceover copy + TTS; tried in order
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GEMINI_API_KEY_2: ${{ secrets.GEMINI_API_KEY_2 }}
-      # dashboard klines proxy for geo-blocked runners (fapi 451); optional
+      # MT-Relay klines for geo-blocked runners (fapi 451); optional, token
+      # rides as X-Relay-Token (see build-props)
       KLINES_PROXY_URL: ${{ secrets.KLINES_PROXY_URL }}
+      KLINES_PROXY_TOKEN: ${{ secrets.KLINES_PROXY_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
