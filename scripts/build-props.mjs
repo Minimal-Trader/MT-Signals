@@ -6,8 +6,8 @@
 // Candle data: MT is a futures-only tool, so klines come from the Binance
 // futures API (fapi.binance.com). US-hosted GitHub runners are geo-blocked
 // (451), so KLINES_PROXY_URL points at the relay on the bot VPS
-// (../binance-relay, see its README); direct fapi is tried when unset, and
-// the public spot mirror is the last resort. Override the interval with
+// (../binance-relay, see its README); direct fapi is tried when the proxy
+// fails or is unset. Override the interval with
 // INTERVAL (e.g. INTERVAL=15m) to force one.
 //
 // Template selection:
@@ -22,12 +22,9 @@ const registry = JSON.parse(readFileSync('templates/templates.json', 'utf8'))
 
 const INTERVALS = ['1m', '5m', '15m', '1h', '4h', '1d']
 const FAPI = 'https://fapi.binance.com/fapi/v1/klines'
-// public spot mirror: same kline shape, reachable from US-hosted runners
-// where fapi answers 451; futures prices track spot, so it is a last resort
-const VISION_SPOT = 'https://data-api.binance.vision/api/v3/klines'
 const INTERVAL_MS = { '1m': 60_000, '5m': 300_000, '15m': 900_000, '1h': 3_600_000, '4h': 14_400_000, '1d': 86_400_000 }
 const CONTEXT_CANDLES = 5
-const PAGE_LIMIT = 500
+const PAGE_LIMIT = 1000
 const TRADE_TZ = process.env.TRADE_TZ || 'Asia/Colombo'
 const BOT_INTERVAL = '15m' // MT-Bots' working timeframe
 
@@ -102,7 +99,7 @@ writeFileSync('props.json', JSON.stringify({ trade, template: chosen.id, ...(Obj
 console.log(`template=${chosen.id} for ${trade.symbol ?? 'unknown symbol'}${Array.isArray(trade.klines) ? ` (${trade.klines.length} candles)` : ''}`)
 
 // Binance FUTURES klines over the trade window: every true candle, fetched in
-// paginated 500-candle pages (500/request, then resume from the last candle
+// paginated 1000-candle pages (then resume from the last candle
 // until the window is covered — nothing is merged or dropped). Returns null
 // on any failure.
 async function fetchKlines(trade) {
@@ -121,12 +118,10 @@ async function fetchKlines(trade) {
     const fetchStart = start - CONTEXT_CANDLES * INTERVAL_MS[interval]
 
     // source chain: the dashboard proxy when configured (exact futures
-    // candles for geo-blocked runners), then direct fapi, then the public
-    // spot mirror (1000-prefixed perps have no spot pair and are skipped)
+    // candles for geo-blocked runners), then direct fapi
     const sources = []
     if (process.env.KLINES_PROXY_URL) sources.push(process.env.KLINES_PROXY_URL)
     sources.push(FAPI)
-    if (!/^1000/.test(symbol)) sources.push(VISION_SPOT)
 
     for (const source of sources) {
       try {
@@ -154,7 +149,11 @@ async function fetchAllPages(source, symbol, interval, fetchStart, end) {
   let cursor = fetchStart
   while (cursor < end) {
     const query = `symbol=${symbol}&interval=${interval}&startTime=${cursor}&endTime=${end}&limit=${PAGE_LIMIT}`
-    const response = await fetch(`${source}?${query}`)
+    // KLINES_PROXY_TOKEN authenticates to MT-Relay (X-Relay-Token); the direct
+    // fapi / spot-mirror sources ignore the extra header
+    const response = await fetch(`${source}?${query}`, {
+      headers: process.env.KLINES_PROXY_TOKEN ? { 'X-Relay-Token': process.env.KLINES_PROXY_TOKEN } : undefined,
+    })
     if (!response.ok) {
       throw new Error(`${source} responded ${response.status} (page at ${new Date(cursor).toISOString()})`)
     }
